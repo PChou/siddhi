@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
 import org.wso2.siddhi.query.api.execution.query.selection.OrderByAttribute;
@@ -626,7 +627,32 @@ public class SimpleQueryTestCase {
 
     }
 
+    @Test
+    public void test14() throws SiddhiParserException {
+        Query query = SiddhiCompiler.parseQuery("from  StockStream#window.length(50) " +
+                "join anotherStock on StockStream.time >> anotherStock.time " +
+                "select symbol, avg(price) as avgPrice " +
+                "insert all events into StockQuote; "
+        );
+        AssertJUnit.assertNotNull(query);
 
+        Query api = Query.query();
+        api = api.from(InputStream.joinStream(
+                InputStream.stream("StockStream").window("length", Expression.value(50)),
+                JoinInputStream.Type.JOIN,
+                InputStream.stream("anotherStock"),
+                Expression.compare(
+                        Expression.variable("time").ofStream("StockStream"),
+                        Compare.Operator.APPROACH,
+                        Expression.variable("time").ofStream("anotherStock"))
+        ));
+        api = api.select(Selector.selector()
+                .select(Expression.variable("symbol"))
+                .select("avgPrice", Expression.function("avg", Expression.variable("price")))
+        );
+        api = api.insertInto("StockQuote", OutputStream.OutputEventType.ALL_EVENTS);
+        AssertJUnit.assertEquals(api, query);
+    }
 }
 
 

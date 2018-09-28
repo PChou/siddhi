@@ -2033,6 +2033,11 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                     Compare.Operator.NOT_EQUAL, (Expression) visit(ctx.math_operation(1)));
             populateQueryContext(expression, ctx);
             return expression;
+        } else if (ctx.approach != null) {
+            Expression expression = Expression.compare((Expression) visit(ctx.math_operation(0)),
+                    Compare.Operator.APPROACH, (Expression) visit(ctx.math_operation(1)));
+            populateQueryContext(expression, ctx);
+            return expression;
         } else {
             throw newSiddhiParserException(ctx);
         }

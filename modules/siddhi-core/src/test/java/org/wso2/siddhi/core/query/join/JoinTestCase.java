@@ -47,6 +47,59 @@ public class JoinTestCase {
     }
 
     @Test
+    public void joinTest0() throws InterruptedException {
+        log.info("Join test0");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream cseEventStream (symbol string, price float, volume int, timestamp int); " +
+                "define stream twitterStream (user string, tweet string, company string, timestamp int); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from cseEventStream#window.length(10) join twitterStream#window.length(5) " +
+                "on cseEventStream.timestamp >> twitterStream.timestamp " +
+                "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
+                "insert all events into outputStream ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        try {
+            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
+                    AssertJUnit.assertEquals(inEvents[0].getData(1), inEvents[0].getData(0));
+                    if (inEvents != null) {
+                        inEventCount.addAndGet(inEvents.length);
+                    }
+                    if (removeEvents != null) {
+                        removeEventCount.addAndGet(removeEvents.length);
+                    }
+                    eventArrived = true;
+                }
+            });
+            InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+            InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+            siddhiAppRuntime.start();
+            twitterStreamHandler.send(new Object[]{"UserIBM", "IBM", "IBM", 1534062000});
+            twitterStreamHandler.send(new Object[]{"UserWSO2", "WSO2", "WSO2", 1534062050});
+            cseEventStreamHandler.send(new Object[]{"IBM", 55.6f, 100, 1534062000});
+            cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100, 1534062010});
+            cseEventStreamHandler.send(new Object[]{"IBM", 76.6f, 100, 1534062020});
+            cseEventStreamHandler.send(new Object[]{"IBM", 45.6f, 100, 1534062025});
+            cseEventStreamHandler.send(new Object[]{"WSO2", 50.6f, 100, 1534062030});
+            cseEventStreamHandler.send(new Object[]{"WSO2", 49.6f, 100, 1534062060});
+            cseEventStreamHandler.send(new Object[]{"WSO2", 49.6f, 100, 1534062100});
+
+            SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 2000);
+            AssertJUnit.assertEquals(7, inEventCount.get());
+            AssertJUnit.assertEquals(0, removeEventCount.get());
+            AssertJUnit.assertTrue(eventArrived);
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
+
+    @Test
     public void joinTest1() throws InterruptedException {
         log.info("Join test1");
 

@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.holder.SnapshotableStreamEventQueue;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.executor.MostApproachExpressionExecutor;
 import org.wso2.siddhi.core.table.InMemoryCompiledUpdateSet;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 
@@ -50,16 +51,32 @@ public class SnapshotableEventQueueOperator implements Operator {
     public StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner) {
         SnapshotableStreamEventQueue storeEventQueue = (SnapshotableStreamEventQueue) storeEvents;
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-
         storeEventQueue.reset();
-        while (storeEventQueue.hasNext()) {
-            StreamEvent storeEvent = storeEventQueue.next();
-            matchingEvent.setEvent(storeEventPosition, storeEvent);
-            if ((Boolean) expressionExecutor.execute(matchingEvent)) {
-                returnEventChunk.add(storeEventCloner.copyStreamEvent(storeEvent));
+
+        // approach must left >> right
+        if (expressionExecutor instanceof MostApproachExpressionExecutor && storeEventPosition == 1) {
+            StateEvent mostApproach = null;
+            while (storeEventQueue.hasNext()) {
+                StreamEvent storeEvent = storeEventQueue.next();
+                matchingEvent.setEvent(storeEventPosition, storeEvent);
+                mostApproach  = (StateEvent) expressionExecutor.execute(matchingEvent);
+                matchingEvent.setEvent(storeEventPosition, null);
             }
-            matchingEvent.setEvent(storeEventPosition, null);
+            if (mostApproach != null) {
+                returnEventChunk.add(storeEventCloner.copyStreamEvent(mostApproach.getStreamEvent(1)));
+            }
+        } else {
+            while (storeEventQueue.hasNext()) {
+                StreamEvent storeEvent = storeEventQueue.next();
+                matchingEvent.setEvent(storeEventPosition, storeEvent);
+                if ((Boolean) expressionExecutor.execute(matchingEvent)) {
+                    returnEventChunk.add(storeEventCloner.copyStreamEvent(storeEvent));
+                }
+                matchingEvent.setEvent(storeEventPosition, null);
+            }
         }
+
+
         return returnEventChunk.getFirst();
 
     }

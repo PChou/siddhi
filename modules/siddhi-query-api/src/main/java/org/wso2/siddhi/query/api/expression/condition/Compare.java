@@ -100,7 +100,8 @@ public class Compare extends Expression {
         LESS_THAN_EQUAL,
         GREATER_THAN_EQUAL,
         EQUAL,
-        NOT_EQUAL
+        NOT_EQUAL,
+        APPROACH
     }
 
 }

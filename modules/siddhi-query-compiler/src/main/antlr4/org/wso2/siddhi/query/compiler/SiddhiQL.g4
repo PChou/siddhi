@@ -464,7 +464,7 @@ math_operation
     |math_operation (multiply='*'|devide='/'|mod='%') math_operation    #multiplication_math_operation
     |math_operation (add='+'|substract='-') math_operation              #addition_math_operation
     |math_operation (gt_eq='>='|lt_eq='<='|gt='>'|lt='<') math_operation #greaterthan_lessthan_math_operation
-    |math_operation (eq='=='|not_eq='!=') math_operation                #equality_math_operation
+    |math_operation (approach='>>'|eq='=='|not_eq='!=') math_operation                #equality_math_operation
     |math_operation IN name                       #in_math_operation
     |math_operation AND math_operation            #and_math_operation
     |math_operation OR math_operation             #or_math_operation

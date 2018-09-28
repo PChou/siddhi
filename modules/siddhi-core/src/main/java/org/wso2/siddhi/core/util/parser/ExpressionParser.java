@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.executor.MostApproachExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.AndConditionExpressionExecutor;
 import org.wso2.siddhi.core.executor.condition.BoolConditionExpressionExecutor;
@@ -283,6 +284,12 @@ public class ExpressionParser {
                                     executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
                 } else if (((Compare) expression).getOperator() == Compare.Operator.LESS_THAN_EQUAL) {
                     return parseLessThanEqualCompare(
+                            parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
+                                    executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName),
+                            parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
+                                    executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
+                } else if (((Compare)expression).getOperator() == Compare.Operator.APPROACH ) {
+                    return parseMostApproach(
                             parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
                                     executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName),
                             parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
@@ -962,6 +969,11 @@ public class ExpressionParser {
                 throw new OperationNotSupportedException(
                         leftExpressionExecutor.getReturnType() + " cannot be used in" + " less than comparisons");
         }
+    }
+
+    private static MostApproachExpressionExecutor parseMostApproach(ExpressionExecutor leftExpressionExecutor,
+                                                                    ExpressionExecutor rightExpressionExecutor) {
+        return new MostApproachExpressionExecutor(leftExpressionExecutor, rightExpressionExecutor);
     }
 
     /**
