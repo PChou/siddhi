@@ -1,0 +1,15 @@
+
+description = 'Siddhi Query Compiler'
+dependencies {
+  compile project(':siddhi-query-api')
+    compile(group: 'org.apache.log4j.wso2', name: 'log4j', version:'1.2.17.wso2v1') {
+exclude(module: 'mail')
+exclude(module: 'jms')
+exclude(module: 'jmxtools')
+exclude(module: 'jmxri')
+    }
+    compile group: 'org.mvel', name: 'mvel2', version:'2.2.1.Final'
+    compile group: 'org.antlr', name: 'antlr4-runtime', version:'4.5.1'
+    testCompile group: 'org.testng', name: 'testng', version:'6.8'
+}
+test.useTestNG()

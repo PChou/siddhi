@@ -1,0 +1,15 @@
+
+description = 'Siddhi Quick Start Samples'
+dependencies {
+  compile project(':siddhi-query-api')
+  compile project(':siddhi-query-compiler')
+  compile project(':siddhi-core')
+    compile(group: 'org.apache.log4j.wso2', name: 'log4j', version:'1.2.17.wso2v1') {
+exclude(module: 'mail')
+exclude(module: 'jms')
+exclude(module: 'jmxtools')
+exclude(module: 'jmxri')
+    }
+    compile group: 'org.antlr', name: 'antlr4-runtime', version:'4.5.1'
+    compile group: 'org.wso2.orbit.com.lmax', name: 'disruptor', version:'3.3.2.wso2v2'
+}

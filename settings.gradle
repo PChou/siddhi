@@ -1,0 +1,24 @@
+rootProject.name = 'siddhi'
+include ':siddhi-query-api'
+include ':siddhi-service'
+include ':siddhi-query-compiler'
+include ':siddhi-core'
+include ':siddhi-samples:performance-samples'
+include ':siddhi-samples:quick-start-samples'
+include ':siddhi-samples'
+include ':siddhi-annotations'
+include ':siddhi-doc-gen'
+include ':siddhi-core-doc-gen'
+include ':coverage-reports'
+
+project(':siddhi-query-api').projectDir = "$rootDir/modules/siddhi-query-api" as File
+project(':siddhi-service').projectDir = "$rootDir/modules/siddhi-service" as File
+project(':siddhi-query-compiler').projectDir = "$rootDir/modules/siddhi-query-compiler" as File
+project(':siddhi-core').projectDir = "$rootDir/modules/siddhi-core" as File
+project(':siddhi-samples:performance-samples').projectDir = "$rootDir/modules/siddhi-samples/performance-samples" as File
+project(':siddhi-samples:quick-start-samples').projectDir = "$rootDir/modules/siddhi-samples/quick-start-samples" as File
+project(':siddhi-samples').projectDir = "$rootDir/modules/siddhi-samples" as File
+project(':siddhi-annotations').projectDir = "$rootDir/modules/siddhi-annotations" as File
+project(':siddhi-doc-gen').projectDir = "$rootDir/modules/siddhi-doc-gen" as File
+project(':siddhi-core-doc-gen').projectDir = "$rootDir/modules/siddhi-core/siddhi-core-doc-gen" as File
+project(':coverage-reports').projectDir = "$rootDir/coverage-reports" as File

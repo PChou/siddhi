@@ -1,0 +1,5 @@
+
+description = 'Siddhi Annotations'
+dependencies {
+    compile group: 'org.atteo.classindex', name: 'classindex', version:'3.4'
+}
